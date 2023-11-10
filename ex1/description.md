@@ -1,40 +1,31 @@
+### Program implementujący problem Pięciu Filozofów.
+### Do pobrania: 
+- Filozofowie.cpp
+
+Proszę wykonać test pracy programu i ustalić co powoduje blokadę.
+
+Proszę uaktywnić fragment kodu:
+```cpp
+if ( widelec1 > widelec2 ) {
+widelec1 = widelec2;
+widelec2 = numerFilozofa;
+}
+```
+za co on odpowiada i co zmienia w zachowaniu filozofów?
+
+> **UWAGA** przed uruchomieniem nowszej wersji proszę posprzątać w systemie za pomocą pary poleceń ipcs i ipcrm.
+
+### Program generujący liczby losowe i je uśredniający.
+Komunikacja za pomocą pamięci współdzielonej, sygnałów i kolejki komunikatów.
+
+### Do pobrania:
+- Program usredniajacy
+- Program generujacy
+- common.h
+- [Instrukcja](instrukcja.txt)
+
 Program liczy srednie z danych losowych umieszczonych w pamieci wspoldzielonej.
 
-Zadanie zostalo rozdzielone na dwa osobne programy:
+### Zadanie zostalo rozdzielone na dwa osobne programy:
 - generator -> zapisuje dane w pamieci wspoldzielonej
 - usredniacz -> odczytuje dane z pamieci wspoldzielonej, liczy srednia, wypisuje ja na ekrenie.
-
-______________________________________
-
-Komunikacja:
-
-Jest bardzo prosta.
-
-Generator - generuje dane - za pomoca kolejki komunikator wysyla komunikat do usredniacza. W komunikacie
-          zawarte sa informacje o polozeniu i rozmiarze danych gotowych do przetworzenia.
-          Po wyslaniu generator usypia (sleep).
-
-Usredniacz - czeka na komunikat. Po jego odebranu przetwarza wskazany obszar danych i wypisuje na
-          ekranie rezultat. Usypia na chwile. Wysyla sygnal do Generatora. Sygnal budzi Generator
-          i cala rzecz sie powtarza.
-
-_______________________________________
-
-Do przecwiczenia:
-- kompilacja/uruchamianie programow
-- polecenie ipcs
-- usuwanie struktur wyswietlanych przez ipcs za pomoca ipcrm
-
-_______________________________________
-
-Koniecznie do zrobienia:
-* systemik dziala wolno. Dzieje sie tak, bo:
-  - w kodzie umieszczone sa operacje sleep - trzeba je wyeliminowac 
-  - generator ma znacznie wiecej pracy niz usredniacz - w systemie powinno byc wiele generatorow 
-    pracujacych dla jednego usredniacza.   
-* Ponadto, komunikacja nie jest do konca poprawna. Nie mamy gwarancji, ze generator nie zacznie pisac
-  gdy poprzednie dane nie zostaly jeszcze przetworzone. To koniecznie trzeba poprawic.
-* uwaga: prosze zwrocic uwage na to aby usredniacz informowal o zakonczeniu przetwarzania ten generator,
-  ktory za ten segment danych odpowiada.
-_______________________________________
-
