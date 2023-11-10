@@ -1,7 +1,11 @@
 ## PRiR
 ### Repo na zadania z Programowania Równoległego i Rozproszonego
-### Zadania: 
-- ### Cwiczenia IPC [ex1](ex1/description.md)
-- ### Cwiczenia MPI [ex2](#) 
-- ### Cwiczenia Java [ex3](#) 
-- ### Cwiczenia Java [ex4](#) 
+
+### Cwiczenia: 
+- ### Lab IPC [lab1](lab/IPC/01-description)
+- ### Lab MPI [lab2](#)
+- ### Lab Java [lab3](#)
+- ### Lab Java [lab4](#)
+
+### Zadania:
+- ### Ex1 [gra w życie](exc/ex1/01-description)
