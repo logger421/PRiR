@@ -26,10 +26,10 @@ Zadanie polega na napisaniu kodu, który używając MPI przyspieszy obliczenia.
 
 ### Dostarczanie rozwiązania:
 
-Rozwiązanie (klasa LifeParallelImplementation) ma rozszerzać klasę Life
-Klasa LifeParallelImplementation ma posiadać konstruktor bezparametrowy.
-Nagłówek o nazwie LifeParallelImplementation.h - proszę również dostarczyć.
-Pliki .cpp i .h proszę wgrywać do systemu osobno.
-Uwaga: jeśli ktoś z Państwa chce dostarczyć więcej niż jedno rozwiązanie w ramach jednego terminu, to proszę zadbać o ponowne wgranie zarówno plików .cpp, jak i jeśli jest taka potrzeba, odpowiedniego pliku .h - nazwy tych plików muszą do siebie pasować. Czyli np. LifeParallelImplementation2.cpp i LifeParallelImplementation2.h Proszę jednak w include nadal używać LifeParallelImplementation.h (pliki otrzymają odpowiednie nazwy przed ich kompilacją).
-Warto zadbać o to, aby Państwa kod nie wyświetlał komunikatów na terminalu. Coś takiego może znacząco pogorszyć efektywności pracy programu.
-Proszę za pomocą include wskazywać wyłącznie pliki nagłówkowe (.h)
+- Rozwiązanie (klasa LifeParallelImplementation) ma rozszerzać klasę Life
+- Klasa LifeParallelImplementation ma posiadać konstruktor bezparametrowy.
+- Nagłówek o nazwie LifeParallelImplementation.h - proszę również dostarczyć.
+- Pliki .cpp i .h proszę wgrywać do systemu osobno.
+- Uwaga: jeśli ktoś z Państwa chce dostarczyć więcej niż jedno rozwiązanie w ramach jednego terminu, to proszę zadbać o ponowne wgranie zarówno plików .cpp, jak i jeśli jest taka potrzeba, odpowiedniego pliku .h - nazwy tych plików muszą do siebie pasować. Czyli np. LifeParallelImplementation2.cpp i LifeParallelImplementation2.h Proszę jednak w include nadal używać LifeParallelImplementation.h (pliki otrzymają odpowiednie nazwy przed ich kompilacją).
+- Warto zadbać o to, aby Państwa kod nie wyświetlał komunikatów na terminalu. Coś takiego może znacząco pogorszyć efektywności pracy programu.
+- Proszę za pomocą include wskazywać wyłącznie pliki nagłówkowe (.h)
