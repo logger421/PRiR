@@ -12,7 +12,6 @@ void LifeParallelImplementation::realStep() {
 
     for (int row = startRow + 1; row < endRow; row++) {
         for (int col = 1; col < size_1; col++) {
-            std::cout << "row: "<< row << " col: " << col << std::endl;
             currentState = cells[row][col];
             currentPollution = pollution[row][col];
             cellsNext[row][col] = rules->cellNextState(currentState,
