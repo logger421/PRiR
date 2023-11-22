@@ -14,16 +14,17 @@ protected:
     void realStep();
 public:
     LifeParallelImplementation();
-    int procs;
-    int rank;
-    int startRow;
-    int endRow;
     int numberOfLivingCells();
     double averagePollution();
     void oneStep();
     void syncData();
     void beforeFirstStep() override;
     void afterLastStep() override;
+private:
+    int procs;
+    int rank;
+    int startRow;
+    int endRow;
 };
 
 

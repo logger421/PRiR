@@ -32,10 +32,10 @@ void LifeParallelImplementation::oneStep() {
 void LifeParallelImplementation::beforeFirstStep() {
     MPI_Comm_size(MPI_COMM_WORLD, &procs);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
     startRow = (rank * size) / procs;
     endRow = ((rank + 1) * size) / procs;
     endRow = std::min(endRow, size_1);
-
 }
 
 void LifeParallelImplementation::afterLastStep() {
@@ -51,5 +51,15 @@ double LifeParallelImplementation::averagePollution() {
 }
 
 void LifeParallelImplementation::syncData() {
-//    MPI_Recv();
+    int destination = (rank + 1) % procs;
+    int source = (rank - 1 + procs) % procs;
+
+    MPI_Send(cellsNext[endRow], size, MPI_INT, destination, 0, MPI_COMM_WORLD);
+    MPI_Send(pollutionNext[endRow], size, MPI_INT, destination, 0, MPI_COMM_WORLD);
+
+    MPI_Recv(cellsNext[startRow - 1], size, MPI_INT, source, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(pollutionNext[startRow - 1], size, MPI_INT, source, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+    startRow = (startRow - 1 + size) % size;
+    endRow = (endRow - 1 + size) % size;
 }

@@ -63,7 +63,7 @@ void simulationInit(Life *life)
 
 int main(int argc, char **argv)
 {
-	const int simulationSize = 100;
+	const int simulationSize = 7500;
 	const int steps = 100;
 	double start;
 	int procs, rank;
