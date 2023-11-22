@@ -4,6 +4,7 @@
 
 #include "Life.h"
 #include "LifeSequentialImplementation.h"
+#include "LifeParallelImplementation.h"
 #include "Rules.h"
 #include "SimpleRules.h"
 #include "Alloc.h"
@@ -62,7 +63,7 @@ void simulationInit(Life *life)
 
 int main(int argc, char **argv)
 {
-	const int simulationSize = 7500;
+	const int simulationSize = 100;
 	const int steps = 100;
 	double start;
 	int procs, rank;
@@ -72,7 +73,7 @@ int main(int argc, char **argv)
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
 	Rules *rules = new SimpleRules();
-	Life *life = new LifeSequentialImplementation();
+	Life *life = new LifeParallelImplementation();
 	life->setRules(rules);
 	life->setSize(simulationSize);
 
@@ -81,7 +82,6 @@ int main(int argc, char **argv)
 		simulationInit(life);
 		start = MPI_Wtime();
 	}
-
 	life->beforeFirstStep();
 	for (int t = 0; t < steps; t++)
 	{
