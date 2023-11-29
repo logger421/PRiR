@@ -18,14 +18,17 @@ void LifeParallelImplementation::realStep() {
                                                        liveNeighbours(row, col),
                                                        currentPollution);
             pollutionNext[row][col] = rules->nextPollution(currentState, currentPollution,
-                                                           pollution[row + 1][col] + pollution[row - 1][col] + pollution[row][col - 1] + pollution[row][col + 1],
-                                                           pollution[row - 1][col - 1] + pollution[row - 1][col + 1] + pollution[row + 1][col - 1] + pollution[row + 1][col + 1]);
+                                                           pollution[row + 1][col] + pollution[row - 1][col] +
+                                                           pollution[row][col - 1] + pollution[row][col + 1],
+                                                           pollution[row - 1][col - 1] + pollution[row - 1][col + 1] +
+                                                           pollution[row + 1][col - 1] + pollution[row + 1][col + 1]);
         }
     }
 }
 
 void LifeParallelImplementation::oneStep() {
     realStep();
+    syncData();
     swapTables();
 }
 
@@ -43,23 +46,44 @@ void LifeParallelImplementation::afterLastStep() {
 }
 
 int LifeParallelImplementation::numberOfLivingCells() {
-    return sumTable( cells );
+    return sumTable(cells);
 }
 
 double LifeParallelImplementation::averagePollution() {
-    return (double)sumTable( pollution ) / size_1_squared / rules->getMaxPollution();
+    return (double) sumTable(pollution) / size_1_squared / rules->getMaxPollution();
 }
 
 void LifeParallelImplementation::syncData() {
-    int destination = (rank + 1) % procs;
-    int source = (rank - 1 + procs) % procs;
+    if(procs > 1 && rank == 0) {
+//        printf("Proc %d sending data to proc %d\n", rank + 1, rank + 2);
+        MPI_Send(cellsNext[endRow], size, MPI_INT, rank + 1, 0, MPI_COMM_WORLD);
+        MPI_Send(pollutionNext[endRow], size, MPI_INT, rank + 1, 0, MPI_COMM_WORLD);
 
-    MPI_Send(cellsNext[endRow], size, MPI_INT, destination, 0, MPI_COMM_WORLD);
-    MPI_Send(pollutionNext[endRow], size, MPI_INT, destination, 0, MPI_COMM_WORLD);
+//        printf("Proc %d receiving data from proc %d\n", rank + 1, rank + 2);
+        MPI_Recv(cellsNext[endRow + 1], size, MPI_INT, rank + 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(pollutionNext[endRow + 1], size, MPI_INT, rank + 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    } else if(procs > 1 && (rank > 0 && rank < procs - 1)) {
+//        printf("Proc %d receiving data from proc %d\n", rank + 1, rank);
+        MPI_Recv(cellsNext[startRow - 1], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(pollutionNext[startRow - 1], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+//        printf("Proc %d sending data to proc %d\n", rank + 1, rank);
+        MPI_Send(cellsNext[startRow], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD);
+        MPI_Send(pollutionNext[startRow], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD);
 
-    MPI_Recv(cellsNext[startRow - 1], size, MPI_INT, source, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    MPI_Recv(pollutionNext[startRow - 1], size, MPI_INT, source, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+//        printf("Proc %d sending data to proc %d\n", rank + 1, rank + 2);
+        MPI_Send(cellsNext[endRow], size, MPI_INT, rank + 1, 0, MPI_COMM_WORLD);
+        MPI_Send(pollutionNext[endRow], size, MPI_INT, rank + 1, 0, MPI_COMM_WORLD);
+//        printf("Proc %d receiving data from proc %d\n", rank + 1, rank + 2);
+        MPI_Recv(cellsNext[endRow + 1], size, MPI_INT, rank + 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(pollutionNext[endRow + 1], size, MPI_INT, rank + 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-    startRow = (startRow - 1 + size) % size;
-    endRow = (endRow - 1 + size) % size;
+    } else if(procs > 1 && rank == procs - 1) {
+//        printf("Proc %d receiving data from proc %d\n", rank + 1, rank );
+        MPI_Recv(cellsNext[startRow - 1], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(pollutionNext[startRow - 1], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+//        printf("Proc %d sending data to proc %d\n", rank + 1, rank);
+        MPI_Send(cellsNext[startRow], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD);
+        MPI_Send(pollutionNext[startRow], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD);
+    }
 }
