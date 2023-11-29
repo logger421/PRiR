@@ -1,2 +1,5 @@
 .idea
 exc/ex1/tester/
+cmake-build-debug
+a.out
+*.pdf
