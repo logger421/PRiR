@@ -9,7 +9,9 @@ Plansza podzielona jest na kwadratowe pola (lokacje) o tym samym rozmiarze. Niek
 Dodatkowo, do samego labiryntu nie będzie bezpośredniego dostępu. Operacje badania labiryntu można będzie zlecić mojemu 
 oprogramowaniu, będzie ono jednak działać wielowątkowo i asynchronicznie.
 
-`Przykładowy labirynt pokazano na obrazku poniżej.`
+`Przykładowy labirynt pokazano na obrazku poniżej:`
+
+![](labirynt.png)
 
 Lokacja umieszczona w lewym-dolnym rogu labiryntu ma pozycję (row=0, col=0).
 
