@@ -39,9 +39,48 @@ void LifeParallelImplementation::beforeFirstStep() {
     startRow = (rank * size) / procs;
     endRow = ((rank + 1) * size) / procs;
     endRow = std::min(endRow, size_1);
+
+    int* flattenedArray = new int[size * size];
+
+    if (!rank) {
+        for (int i = 0; i < size; ++i) {
+            for (int j = 0; j < size; ++j) {
+                flattenedArray[i * size + j] = cells[i][j];
+            }
+        }
+    }
+
+    MPI_Bcast(flattenedArray, size * size, MPI_INT, 0, MPI_COMM_WORLD);
+
+    if (rank) {
+        for (int i = 0; i < size; ++i) {
+            for (int j = 0; j < size; ++j) {
+                cells[i][j] = flattenedArray[i * size + j];
+            }
+        }
+    }
+    delete[] flattenedArray;
 }
 
 void LifeParallelImplementation::afterLastStep() {
+    if (procs > 1) {
+        int* displacements = new int[procs];
+        int* recvCounts = new int[procs];
+        int displacement = 0;
+
+        for (int i = 0; i < procs; ++i) {
+            displacements[i] = displacement;
+            displacement += (endRow - startRow) * size;
+            recvCounts[i] = (endRow - startRow) * size;
+        }
+
+        MPI_Gatherv(&cells[startRow], endRow - startRow, MPI_INT,&cells[0], recvCounts, displacements, MPI_INT, 0, MPI_COMM_WORLD);
+
+        MPI_Gatherv(&pollution[startRow], endRow - startRow, MPI_INT,&pollution[0], recvCounts, displacements, MPI_INT, 0, MPI_COMM_WORLD);
+
+        delete[] displacements;
+        delete[] recvCounts;
+    }
     MPI_Barrier(MPI_COMM_WORLD);
 }
 
@@ -54,35 +93,27 @@ double LifeParallelImplementation::averagePollution() {
 }
 
 void LifeParallelImplementation::syncData() {
-    if(procs > 1 && rank == 0) {
-//        printf("Proc %d sending data to proc %d\n", rank + 1, rank + 2);
+    if (procs > 1 && rank == 0) {
         MPI_Send(cellsNext[endRow], size, MPI_INT, rank + 1, 0, MPI_COMM_WORLD);
         MPI_Send(pollutionNext[endRow], size, MPI_INT, rank + 1, 0, MPI_COMM_WORLD);
 
-//        printf("Proc %d receiving data from proc %d\n", rank + 1, rank + 2);
         MPI_Recv(cellsNext[endRow + 1], size, MPI_INT, rank + 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         MPI_Recv(pollutionNext[endRow + 1], size, MPI_INT, rank + 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    } else if(procs > 1 && (rank > 0 && rank < procs - 1)) {
-//        printf("Proc %d receiving data from proc %d\n", rank + 1, rank);
+    } else if (procs > 1 && (rank > 0 && rank < procs - 1)) {
         MPI_Recv(cellsNext[startRow - 1], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         MPI_Recv(pollutionNext[startRow - 1], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-//        printf("Proc %d sending data to proc %d\n", rank + 1, rank);
         MPI_Send(cellsNext[startRow], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD);
         MPI_Send(pollutionNext[startRow], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD);
 
-//        printf("Proc %d sending data to proc %d\n", rank + 1, rank + 2);
         MPI_Send(cellsNext[endRow], size, MPI_INT, rank + 1, 0, MPI_COMM_WORLD);
         MPI_Send(pollutionNext[endRow], size, MPI_INT, rank + 1, 0, MPI_COMM_WORLD);
-//        printf("Proc %d receiving data from proc %d\n", rank + 1, rank + 2);
         MPI_Recv(cellsNext[endRow + 1], size, MPI_INT, rank + 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         MPI_Recv(pollutionNext[endRow + 1], size, MPI_INT, rank + 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-    } else if(procs > 1 && rank == procs - 1) {
-//        printf("Proc %d receiving data from proc %d\n", rank + 1, rank );
+    } else if (procs > 1 && rank == procs - 1) {
         MPI_Recv(cellsNext[startRow - 1], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         MPI_Recv(pollutionNext[startRow - 1], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-//        printf("Proc %d sending data to proc %d\n", rank + 1, rank);
         MPI_Send(cellsNext[startRow], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD);
         MPI_Send(pollutionNext[startRow], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD);
     }
