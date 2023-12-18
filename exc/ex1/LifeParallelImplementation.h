@@ -25,6 +25,7 @@ private:
     int rank;
     int startRow;
     int endRow;
+    int rowsTotal;
 };
 
 
