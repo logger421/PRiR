@@ -66,61 +66,25 @@ void LifeParallelImplementation::beforeFirstStep() {
 
 void LifeParallelImplementation::afterLastStep() {
     if (procs > 1) {
-        int *displacements = new int[procs];
-        int *recvCounts = new int[procs];
-
         if (!rank) {
-            int displacement = 0;
-            for (int i = 0; i < procs; i++) {
-                int localStart = (i * size) / procs;
-                int localEnd = ((i + 1) * size) / procs;
-                displacements[i] = displacement;
-                displacement += (localEnd - localStart) * size;
-                recvCounts[i] = (localEnd - localStart) * size;
-            }
-        }
-
-        int *flattenedArray = new int[rowsTotal * size];
-
-        // flatten cells, pollution to 1D
-        for (int i = 0, row = startRow; row <= endRow; i++, row++) {
-            for (int j = 0; j < size; j++) {
-                flattenedArray[i * size + j] = cells[row][j];
-            }
-        }
-
-        int *recvBuff = new int[size * size];
-
-        MPI_Gatherv(flattenedArray, rowsTotal * size, MPI_INT, recvBuff, recvCounts,
-                    displacements, MPI_INT, 0, MPI_COMM_WORLD);
-        if (!rank) {
-            for (int row = 0; row < size; row++) {
-                for (int col = 0; col < size; col++) {
-                    cells[row][col] = recvBuff[row * size + col];
+            for (int proc_num = 1; proc_num < procs; proc_num++) {
+                int localStart = (proc_num * size) / procs;
+                int localEnd = ((proc_num + 1) * size) / procs;
+                localEnd = std::min(localEnd, size_1);
+                for (int i = localStart; i < localEnd; i++) {
+                    MPI_Recv(cells[i], size, MPI_INT, proc_num, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                    MPI_Recv(pollution[i], size, MPI_INT, proc_num, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 }
             }
         }
 
-        for (int i = 0, row = startRow; row <= endRow; i++, row++) {
-            for (int j = 0; j < size; j++) {
-                flattenedArray[i * size + j] = pollution[row][j];
+        if (rank) {
+            for (int i = startRow; i < endRow; i++) {
+                MPI_Send(cells[i], size, MPI_INT, 0, 0, MPI_COMM_WORLD);
+                MPI_Send(pollution[i], size, MPI_INT, 0, 0, MPI_COMM_WORLD);
             }
         }
-        MPI_Gatherv(flattenedArray, rowsTotal * size, MPI_INT, recvBuff, recvCounts,
-                    displacements, MPI_INT, 0, MPI_COMM_WORLD);
-        if (!rank) {
-            for (int row = 0; row < size; row++) {
-                for (int col = 0; col < size; col++) {
-                    pollution[row][col] = recvBuff[row * size + col];
-                }
-            }
-        }
-
         MPI_Barrier(MPI_COMM_WORLD);
-        delete[] displacements;
-        delete[] recvCounts;
-        delete[] flattenedArray;
-        delete[] recvBuff;
     }
 }
 
