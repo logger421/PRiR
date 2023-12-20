@@ -9,7 +9,8 @@ LifeParallelImplementation::LifeParallelImplementation() {}
 
 void LifeParallelImplementation::realStep() {
     int currentState, currentPollution;
-    for (int row = startRow; row < endRow; row++) {
+    for (int row = startRow; row <= endRow; row++) {
+        if(row == size_1) break;
         for (int col = 1; col < size_1; col++) {
             currentState = cells[row][col];
             currentPollution = pollution[row][col];
@@ -71,7 +72,7 @@ void LifeParallelImplementation::afterLastStep() {
                 int localStart = (proc_num * size) / procs;
                 int localEnd = ((proc_num + 1) * size) / procs;
                 localEnd = std::min(localEnd, size_1);
-                for (int i = localStart; i < localEnd; i++) {
+                for (int i = localStart; i <= localEnd; i++) {
                     MPI_Recv(cells[i], size, MPI_INT, proc_num, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                     MPI_Recv(pollution[i], size, MPI_INT, proc_num, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 }
@@ -79,7 +80,7 @@ void LifeParallelImplementation::afterLastStep() {
         }
 
         if (rank) {
-            for (int i = startRow; i < endRow; i++) {
+            for (int i = startRow; i <= endRow; i++) {
                 MPI_Send(cells[i], size, MPI_INT, 0, 0, MPI_COMM_WORLD);
                 MPI_Send(pollution[i], size, MPI_INT, 0, 0, MPI_COMM_WORLD);
             }
@@ -117,7 +118,6 @@ void LifeParallelImplementation::syncData() {
         } else if (rank == procs - 1) {
             MPI_Recv(cells[startRow - 1], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             MPI_Recv(pollution[startRow - 1], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
             MPI_Send(cells[startRow], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD);
             MPI_Send(pollution[startRow], size, MPI_INT, rank - 1, 0, MPI_COMM_WORLD);
         }
