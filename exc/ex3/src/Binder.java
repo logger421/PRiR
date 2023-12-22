@@ -1,14 +1,14 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head>
-<title>401 Unauthorized</title>
-</head><body>
-<h1>Unauthorized</h1>
-<p>This server could not verify that you
-are authorized to access the document
-requested.  Either you supplied the wrong
-credentials (e.g., bad password), or your
-browser doesn't understand how to supply
-the credentials required.</p>
-<hr>
-<address>Apache/2.4.52 (Ubuntu) Server at zti.if.uj.edu.pl Port 443</address>
-</body></html>
+
+/**
+ * Interfejs rejestracji usługi RMI.
+ */
+public interface Binder {
+    /**
+     * Rejestruje w rmiregistry pod podaną nazwą serwer usługi. Usługa rmiregistry
+     * będzie uruchomiona pod adresem localhost:1099. <b>Metoda nie może
+     * samodzielnie uruchamiać rmiregistry!</b>
+     *
+     * @param serviceName oczekiwana nazwa usługi w rmiregistry
+     */
+    public void bind(String serviceName);
+}
