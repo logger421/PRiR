@@ -1,5 +1,7 @@
 .idea
-exc/ex1/tester/
+tester/
 cmake-build-debug
 a.out
 *.pdf
+out
+*.iml
