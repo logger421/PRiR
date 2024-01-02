@@ -16,7 +16,6 @@ public class RMIHistogram implements Binder, RemoteHistogram {
             RemoteHistogram stub = (RemoteHistogram) UnicastRemoteObject.exportObject(this, 0);
             Registry registry = LocateRegistry.getRegistry(1099);
             registry.bind(serviceName, stub);
-            System.out.println("Successfully bound");
         } catch (RemoteException e) {
             e.printStackTrace();
         } catch (AlreadyBoundException e) {
@@ -31,7 +30,6 @@ public class RMIHistogram implements Binder, RemoteHistogram {
         while (histograms.containsKey(nextId))
             nextId = rand.nextInt();
         histograms.put(nextId, new int[bins]);
-        System.out.println("Created histogram with id: " + nextId + " for bins: " + bins);
         return nextId;
     }
 
