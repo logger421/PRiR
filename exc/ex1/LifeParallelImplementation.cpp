@@ -35,7 +35,7 @@ void LifeParallelImplementation::beforeFirstStep() {
     MPI_Comm_size(MPI_COMM_WORLD, &procs);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    startRow = (rank * size) / procs;
+    startRow = (rank * size) / procs + 1;
     endRow = ((rank + 1) * size) / procs;
     rowsTotal = (endRow - startRow);
 
@@ -69,7 +69,7 @@ void LifeParallelImplementation::afterLastStep() {
     if (procs > 1) {
         if (!rank) {
             for (int proc_num = 1; proc_num < procs; proc_num++) {
-                int localStart = (proc_num * size) / procs;
+                int localStart = (proc_num * size) / procs + 1;
                 int localEnd = ((proc_num + 1) * size) / procs;
                 localEnd = std::min(localEnd, size_1);
                 for (int i = localStart; i <= localEnd; i++) {
