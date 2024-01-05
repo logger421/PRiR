@@ -52,10 +52,9 @@ void Simulation::step() {
 }
 
 void Simulation::updateVelocity() {
-
 	double oldFx, oldFy;
 	double dx, dy, distance, frc;
-
+#pragma omp parallel for private(oldFx, oldFy, dx, dy, distance, frc)
 	for (int idx = 0; idx < particles; idx++) {
 		oldFx = Fx[idx];
 		oldFy = Fy[idx];
@@ -109,11 +108,10 @@ void Simulation::preventMoveAgainstForce() {
 
 double Simulation::Ekin() {
 	double ek = 0.0;
-#pragma omp parallel for lastprivate(ek)
+#pragma omp parallel for reduction(+: ek)
 	for (int idx = 0; idx < particles; idx++) {
 		ek += m[idx] * (Vx[idx] * Vx[idx] + Vy[idx] * Vy[idx]) * 0.5;
 	}
-
 	return ek;
 }
 
@@ -125,7 +123,7 @@ void Simulation::pairDistribution(double *histogram, int size, double coef) {
 	double dx, dy;
 	double distance;
 	int idx;
-
+#pragma omp parallel for private(dx, dy, distance, idx) schedule( dynamic )
 	for (int idx1 = 0; idx1 < particles; idx1++) {
 		for (int idx2 = 0; idx2 < idx1; idx2++) {
 			dx = x[idx2] - x[idx1];
@@ -134,6 +132,7 @@ void Simulation::pairDistribution(double *histogram, int size, double coef) {
 			if (distance < maxDistanceSQ) {
 				distance = sqrt(distance);
 				idx = (int) (distance / coef);
+#pragma omp critical
 				histogram[idx]++;
 			}
 		}
@@ -148,6 +147,7 @@ void Simulation::pairDistribution(double *histogram, int size, double coef) {
 double Simulation::avgMinDistance() {
 	double sum = { };
 
+#pragma omp parallel for reduction (+ : sum)
 	for (int i = 0; i < particles; i++)
 		sum += minDistance(i);
 
