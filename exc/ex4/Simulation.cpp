@@ -8,6 +8,7 @@
 #include "Simulation.h"
 #include <math.h>
 #include <iostream>
+#include <omp.h>
 
 using namespace std;
 
